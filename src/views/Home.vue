@@ -1,6 +1,6 @@
 <template>
     <ion-page>
-        {{ output }}
+        <Map></Map>
     </ion-page>
 </template>
 
@@ -9,6 +9,7 @@ import { IonPage, IonToolbar, IonFooter, IonHeader, IonTitle, IonContent, IonBut
 import { Options, Vue } from 'vue-class-component';
 import APIRequest from '@/models/logic/APIRequest';
 import Station from '@/models/dao/Station';
+import Map from '@/views/Map.vue';
 
 @Options({
     components: {
@@ -22,7 +23,8 @@ import Station from '@/models/dao/Station';
         IonActionSheet,
         IonItem,
         IonLabel,
-        IonInput
+        IonInput,
+        Map
     }
 })
 
