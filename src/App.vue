@@ -1,6 +1,6 @@
 <template>
     <ion-app>
-        <ion-router-outlet/>
+        <router-view/>
     </ion-app>
 </template>
 
@@ -14,8 +14,8 @@ import { Options, Vue } from 'vue-class-component';
         IonRouterOutlet
     }
 })
-
 export default class App extends Vue {
+
 }
 </script>
 

@@ -11,6 +11,7 @@
             </ion-toolbar>
         </ion-header>
         <ion-content class="ion-padding">
+            <ion-button @click="showDetails()">Tankstellendetails</ion-button>
             <ion-menu-toggle>
                 <ion-button>Click to close the menu</ion-button>
             </ion-menu-toggle>
@@ -105,9 +106,10 @@ export default class Map extends Vue {
         L.marker([apiRequest.coordinate.latitude, apiRequest.coordinate.longitude], {icon: myLocation}).addTo(map).bindPopup("You are here").openPopup();
     }
 
+    public showDetails(): void {
+        this.$router.push({ name: 'Details' });
+    }
 }
-
-
 
 </script>
 
