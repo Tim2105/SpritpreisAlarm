@@ -49,6 +49,8 @@ import { Options, Vue } from 'vue-class-component';
 import APIRequest from '@/models/logic/APIRequest';
 import Station from '@/models/dao/Station';
 
+import Filter_ts from '@/models/logic/Filter';
+import Filter from '@/views/Filter.vue';
 
 
 //Einbinden der Leaflet Bibliothek
@@ -96,9 +98,22 @@ export default class Map extends Vue {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
+        // Filter für die Tankstellen eibinden
+        console.log("001");
+        const filter= new Filter();
+        
+
+
+
+        const Filter_ts = new Filter_ts(stations, filter);
+        console.log("001");
+        const tanke  = filter.filterStations(stations);
+        
+
+
         // Marker für die Tankstellen hinzufügen mit eigenem Icon
-        for (let i = 0; i < stations.length; i++) {
-            const station: Station = stations[i];
+        for (let i = 0; i < tanke.length; i++) {
+            const station: Station = tanke[i];
             L.marker([station.coordinate.latitude, station.coordinate.longitude]).addTo(map).bindPopup(station.name + "<br>" + station.address).openPopup();
         }
 

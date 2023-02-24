@@ -35,7 +35,6 @@ export default class Station {
         this._e5Price = e5Price === false ? -1 : e5Price as number;
         this._e10Price = e10Price === false ? -1 : e10Price as number;
     }
-
     get id(): string {
         return this._id;
     }
