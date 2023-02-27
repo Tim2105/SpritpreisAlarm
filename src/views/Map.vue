@@ -50,7 +50,8 @@ import APIRequest from '@/models/logic/APIRequest';
 import Station from '@/models/dao/Station';
 
 import Filter_ts from '@/models/logic/Filter';
-import Filter from '@/views/Filter.vue';
+import FilterVue from '@/views/Filter.vue';
+import Stations from '@/models/Stations';
 
 
 //Einbinden der Leaflet Bibliothek
@@ -59,6 +60,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet/dist/leaflet.js';
 import 'leaflet/dist/images/marker-shadow.png';
 import 'leaflet/dist/images/marker-icon.png';
+import Coordinate from '@/models/dao/Coordinate';
 
 @Options({
     components:
@@ -74,17 +76,22 @@ import 'leaflet/dist/images/marker-icon.png';
     }
 })
 
+//&Nils Bachmann
 export default class Map extends Vue {
 
     public async mounted(): Promise<void> {
 
-        const apiRequest: APIRequest = await APIRequest.fromCurrentLocation();
-        const stations: Station[] = await apiRequest.getStations();
+        const myLocationCords = await APIRequest.fromCurrentLocation();
+
+
+        //const apiRequest: APIRequest = await APIRequest.fromCurrentLocation();
+        const stations = Stations.getStations();
         console.log(stations);
 
 
         // Karte initialisieren mit Koordinaten des Users und eigenem Icon
-        const map = L.map('map').setView([apiRequest.coordinate.latitude, apiRequest.coordinate.longitude], 13);
+            const map = L.map('map').setView([myLocationCords.coordinate.latitude, myLocationCords.coordinate.longitude], 13);
+
 
         // Icon für den User
         var myLocation = L.icon({
@@ -100,25 +107,21 @@ export default class Map extends Vue {
 
         // Filter für die Tankstellen eibinden
         console.log("001");
-        const filter= new Filter();
+        const filter= new FilterVue();
         
 
-
-
-        const Filter_ts = new Filter_ts(stations, filter);
         console.log("001");
-        const tanke  = filter.filterStations(stations);
+        const tanke  = Filter_ts.filterStations(filter.diesel, filter.e5, filter.e10);
         
 
 
         // Marker für die Tankstellen hinzufügen mit eigenem Icon
-        for (let i = 0; i < tanke.length; i++) {
-            const station: Station = tanke[i];
+        for (let station of tanke) {
             L.marker([station.coordinate.latitude, station.coordinate.longitude]).addTo(map).bindPopup(station.name + "<br>" + station.address).openPopup();
         }
 
         // Marker für den User hinzufügen mit eigenem Icon
-        L.marker([apiRequest.coordinate.latitude, apiRequest.coordinate.longitude], {icon: myLocation}).addTo(map).bindPopup("You are here").openPopup();
+        L.marker([myLocationCords.coordinate.latitude, myLocationCords.coordinate.longitude], {icon: myLocation}).addTo(map).bindPopup("You are here").openPopup();
     }
 
     public showDetails(): void {

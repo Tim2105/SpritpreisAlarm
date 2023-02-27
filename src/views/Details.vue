@@ -74,6 +74,7 @@ import Stations from '@/models/Stations';
         IonList
     },
 })
+//&Nils Bachmann
 export default class StationDetails extends Vue {
     
     private stations : Array<Station> = [];

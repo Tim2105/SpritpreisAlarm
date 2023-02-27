@@ -1,6 +1,7 @@
 import APIRequest from '@/models/logic/APIRequest';
 import Station from '@/models/dao/Station';
 
+
 /**
  * Eine Klasse, die alle Tankstellen in der Umgebung bereitstellt.
  * Wenn die Tankstellen bereits einmal geladen wurden, werden sie nicht erneut geladen.

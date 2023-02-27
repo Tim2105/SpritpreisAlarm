@@ -9,7 +9,8 @@
                 <ion-item>
                     <ion-label>Filter</ion-label> 
                     <!-- Hier wird die Auswahl der Spritart gemacht  mehrfache Auswahl möglich-->
-                    <ion-select :value="_filter" multiple="true" interface="popover" placeholder="Mehrere Spritarten auswählen">
+                    <ion-select :value="_filter" multiple="true" interface="popover" placeholder="Filtern" @update="filter()">
+                        <ion-select-option value="Open">Geöffnet</ion-select-option>
                         <ion-select-option value="Diesel">Diesel</ion-select-option>
                         <ion-select-option value="E10">E10</ion-select-option>
                         <ion-select-option value="E5">E5</ion-select-option>
@@ -43,16 +44,37 @@ import Station from '@/models/dao/Station';
     }
 })
 
-export default class Bilter extends Vue {
-    public _filter: string[] = [];
+export default class FilterVue extends Vue {
 
-    get filter(): string[] {
+    public _filter : string[] = [];
+
+    public static async filter()
+    {
+        for(let i = 0; i <  filter.length ; i++)
+        {
+            if(_filter[i] == "Diesel")
+            {
+                //Diesel Filter
+            }
+            else if(_filter[i] == "E10")
+            {
+                //E10 Filter
+            }
+            else if(_filter[i] == "E5")
+            {
+                //E5 Filter
+            }
+        }
+    }
+
+    public get filter() : string[] {
         return this._filter;
     }
 
-    set filter(value: string[]) {
+    public set filter(value : string[]) {
         this._filter = value;
     }
+
 }
 
 
