@@ -17,7 +17,7 @@ export default class Filter_ts {
         const filteredStations: Station[] = [];
         const stations: Station[] = await Stations.getStations();
 
-        for (let station of stations) 
+        for (const station of stations) 
         {
 
             if (open && station.isOpen) {

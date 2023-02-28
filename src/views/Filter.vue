@@ -1,23 +1,23 @@
 <template>
     <!-- Einen filter der eine auswahl von Sprit zulässt über eine -->
-        <ion-header>
-            <ion-toolbar>
-                <ion-title>Filter</ion-title>
-            </ion-toolbar>
-        </ion-header>
-            <ion-content>
-                <ion-item>
-                    <ion-label>Filter</ion-label> 
-                    <!-- Hier wird die Auswahl der Spritart gemacht  mehrfache Auswahl möglich-->
-                    <ion-select :value="_filter" multiple="true" interface="popover" placeholder="Filtern" @update="filter()">
-                        <ion-select-option value="Open">Geöffnet</ion-select-option>
-                        <ion-select-option value="Diesel">Diesel</ion-select-option>
-                        <ion-select-option value="E10">E10</ion-select-option>
-                        <ion-select-option value="E5">E5</ion-select-option>
-                    </ion-select>
+    <ion-header>
+        <ion-toolbar>
+            <ion-title>Filter</ion-title>
+        </ion-toolbar>
+    </ion-header>
+    <ion-content>
+        <ion-item>
+            <ion-label>Filter</ion-label>
+            <!-- Hier wird die Auswahl der Spritart gemacht  mehrfache Auswahl möglich-->
+            <ion-select :value="_filter" multiple="true" interface="popover" placeholder="Filtern" @update="filter()">
+                <ion-select-option value="Open">Geöffnet</ion-select-option>
+                <ion-select-option value="Diesel">Diesel</ion-select-option>
+                <ion-select-option value="E10">E10</ion-select-option>
+                <ion-select-option value="E5">E5</ion-select-option>
+            </ion-select>
 
-                </ion-item>
-            </ion-content>
+        </ion-item>
+    </ion-content>
 </template>
 
 <script lang="ts">
@@ -45,36 +45,32 @@ import Station from '@/models/dao/Station';
 })
 
 export default class FilterVue extends Vue {
+  public _filter: string[] = [];
+  private _isOpen: boolean = true;
+  private _isDiesel: boolean = true;
+  private _isE10: boolean = true;
+  private _isE5: boolean = true;
 
-    public _filter : string[] = [];
+  public filter(): void {
+    this._isOpen = this._filter.includes('Open');
+    this._isDiesel = this._filter.includes('Diesel');
+    this._isE10 = this._filter.includes('E10');
+    this._isE5 = this._filter.includes('E5');
+  }
 
-    public static async filter()
-    {
-        for(let i = 0; i <  filter.length ; i++)
-        {
-            if(_filter[i] == "Diesel")
-            {
-                //Diesel Filter
-            }
-            else if(_filter[i] == "E10")
-            {
-                //E10 Filter
-            }
-            else if(_filter[i] == "E5")
-            {
-                //E5 Filter
-            }
-        }
-    }
-
-    public get filter() : string[] {
-        return this._filter;
-    }
-
-    public set filter(value : string[]) {
-        this._filter = value;
-    }
-
+  public getFilters(): {
+    isOpen: boolean;
+    isDiesel: boolean;
+    isE10: boolean;
+    isE5: boolean;
+  } {
+    return {
+      isOpen: this._isOpen,
+      isDiesel: this._isDiesel,
+      isE10: this._isE10,
+      isE5: this._isE5,
+    };
+  }
 }
 
 

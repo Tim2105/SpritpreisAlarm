@@ -1,9 +1,8 @@
 <template>
     <!--Einbinden der Css Datei von Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
-     integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
-     crossorigin=""/>
-     <!--Menü Icon -->
+        integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <!--Menü Icon -->
     <ion-menu content-id="main-content">
         <ion-header>
             <ion-toolbar>
@@ -81,23 +80,18 @@ export default class Map extends Vue {
 
     public async mounted(): Promise<void> {
 
-        const myLocationCords = await APIRequest.fromCurrentLocation();
-
-
-        //const apiRequest: APIRequest = await APIRequest.fromCurrentLocation();
+        const apiRequest: APIRequest = await APIRequest.fromCurrentLocation();
         const stations = Stations.getStations();
         console.log(stations);
-
-
+        console.log("hi");
         // Karte initialisieren mit Koordinaten des Users und eigenem Icon
-            const map = L.map('map').setView([myLocationCords.coordinate.latitude, myLocationCords.coordinate.longitude], 13);
-
+        const map = L.map('map').setView([apiRequest.coordinate.latitude, apiRequest.coordinate.longitude], 13);
 
         // Icon für den User
         var myLocation = L.icon({
             iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/images/marker-icon-2x.png',
             iconAnchor: [22, 94],
-            popupAnchor: [-3, -76],            
+            popupAnchor: [-3, -76],
         });
 
         // Kartenlayer hinzufügen wo sich der user befindet
@@ -107,21 +101,20 @@ export default class Map extends Vue {
 
         // Filter für die Tankstellen eibinden
         console.log("001");
-        const filter= new FilterVue();
-        
+        const filter = new FilterVue();
+        filter.filter();
+        const filters = filter.getFilters();
 
         console.log("001");
-        const tanke  = Filter_ts.filterStations(filter.diesel, filter.e5, filter.e10);
-        
-
+        const tanke = await Filter_ts.filterStations(filters.isOpen, filters.isDiesel, filters.isE5, filters.isE10);
 
         // Marker für die Tankstellen hinzufügen mit eigenem Icon
-        for (let station of tanke) {
+        for (const station of tanke) {
             L.marker([station.coordinate.latitude, station.coordinate.longitude]).addTo(map).bindPopup(station.name + "<br>" + station.address).openPopup();
         }
 
         // Marker für den User hinzufügen mit eigenem Icon
-        L.marker([myLocationCords.coordinate.latitude, myLocationCords.coordinate.longitude], {icon: myLocation}).addTo(map).bindPopup("You are here").openPopup();
+        L.marker([apiRequest.coordinate.latitude, apiRequest.coordinate.longitude], { icon: myLocation }).addTo(map).bindPopup("You are here").openPopup();
     }
 
     public showDetails(): void {
