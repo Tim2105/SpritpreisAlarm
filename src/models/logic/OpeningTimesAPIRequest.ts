@@ -1,6 +1,12 @@
 import OpeningTime from '../dao/OpeningTime';
 import OpeningTimes from '@/models/dao/OpeningTimes';
 
+/**
+ * Die Klasse OpeningTimesAPIRequest stellt eine Schnittstelle zur Tankerkönig-Öffnungszeiten-API dar(auch Detailabfrage genannt).
+ * Anhand einer Stations-ID kann eine Abfrage zu einer bestimmten Tankstelle gestartet werden.
+ * 
+ * @author Tim
+ */
 export default class OpeningTimesAPIRequest {
     
     private static url = "https://creativecommons.tankerkoenig.de/json/detail.php";
@@ -35,9 +41,6 @@ export default class OpeningTimesAPIRequest {
         for (const override of json.station.overrides) {
             overrides.push(override);
         }
-
-        console.log(openingTimes);
-        console.log(overrides);
 
         return new OpeningTimes(openingTimes, overrides);
     }

@@ -3,7 +3,7 @@
     Die Details umfassen:
     - Name der Tankstelle
     - Adresse der Tankstelle
-    - Öffnungszeiten der Tankstelle
+    - Öffnungszeiten der Tankstelle(auf seperater Seite)
     - Preise für die verschiedenen Kraftstoffe
 
     Die Tankstellen werden aus der zentralen Verwaltungsklasse Stations geladen.

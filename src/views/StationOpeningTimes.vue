@@ -1,3 +1,10 @@
+<!--
+    Die Komponente StationOpeningTimes zeigt die Öffnungszeiten einer Tankstelle an.
+    Die Öffnungszeiten werden bei Öffnen der Komponente von der API geladen.
+    Zusätzlich wird angezeigt, ob die Tankstelle gerade geöffnet ist.
+
+    @author: Tim
+-->
 <template>
     <ion-page>
         <ion-header>
@@ -15,16 +22,20 @@
                 </ion-item>
             </ion-list>
 
+            <ion-label v-if="openingTimes?.openingTimes.length == 0">
+                Leider sind für diese Tankstelle keine genauen Öffnungszeiten hinterlegt.
+            </ion-label>
+
             <h1 v-if="openingTimes?.overrides.length">Ausnahmen</h1>
             <ion-item v-for="time in openingTimes?.overrides" :key="time">
                 {{ time.toString() }}
             </ion-item>
 
             <p v-if="station?.isOpen">
-                <ion-button color="success" expand="block">Geöffnet</ion-button>
+                <ion-label color="success">Geöffnet</ion-label>
             </p>
             <p v-else>
-                <ion-button color="danger" expand="block">Geschlossen</ion-button>
+                <ion-label color="danger">Geschlossen</ion-label>
             </p>
 
         </ion-content>

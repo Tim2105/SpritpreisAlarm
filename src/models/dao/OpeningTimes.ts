@@ -1,5 +1,11 @@
 import OpeningTime from "@/models/dao/OpeningTime";
 
+/**
+ * Die Klasse OpeningTimes repräsentiert die Öffnungszeiten eines Standorts.
+ * Öffnungszeiten werden als Array von OpeningTime-Objekten gespeichert.
+ * 
+ * @author Tim
+ */
 export default class OpeningTimes {
     private _openingTimes: Array<OpeningTime>;
     private _overrides: Array<string>;

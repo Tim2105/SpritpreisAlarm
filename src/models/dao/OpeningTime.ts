@@ -1,4 +1,12 @@
+/**
+ * Die Klasse OpeningTime repräsentiert eine Öffnungszeit eines Standorts.
+ * Eine Öffnungszeit besteht aus einem/mehreren Wochentag(en) und der dazu gehörigen Öffnungs- und Schließzeit.
+ * Abkürzungen für Wochentage werden automatisch in den vollständigen Namen umgewandelt.
+ * 
+ * @author Tim
+ */
 export default class OpeningTime {
+    // eslint-disable-next-line
     private static dayAbbreviations : any = {
         "Mo": "Montag",
         "Di": "Dienstag",
@@ -14,19 +22,16 @@ export default class OpeningTime {
     private _end: string;
 
     constructor(days: string, start: string, end: string) {
-        // Tag formattieren
-        this._days = "";
-        for (const day of days.split(/(,|-)/)) {
-            day.replace(/[\u0250-\ue007]/g, '')
+        // Tag formatieren
+        // Alle Wochentagskürzel durch den vollständigen Namen ersetzen
+        for(const key in OpeningTime.dayAbbreviations)
+            if(!days.includes(OpeningTime.dayAbbreviations[key]))
+                days = days.replaceAll(key, OpeningTime.dayAbbreviations[key]);
+        
+        this._days = days;
 
-            if (day.length == 2)
-                this._days += OpeningTime.dayAbbreviations[day] + ", ";
-            else
-                this._days += day + ", ";
-        }
-        this._days = this._days.substring(0, this._days.length - 2);
-
-        // Uhrzeit formattieren
+        // Uhrzeit formatieren
+        // Uhrzeit auf 5 Zeichen kürzen (z.B. 08:00:00 -> 08:00)
         this._start = start.substring(0, 5);
         this._end = end.substring(0, 5);
     }
