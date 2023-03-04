@@ -48,9 +48,9 @@
 import { IonPage, IonToolbar, IonFooter, IonHeader, IonTitle, IonContent, IonButton, IonActionSheet, IonItem, IonLabel, IonInput, IonList } from '@ionic/vue';
 import { Options, Vue } from 'vue-class-component';
 import OpeningTimes from '@/models/dao/OpeningTimes';
-import OpeningTimesAPIRequest from '@/models/logic/OpeningTimesAPIRequest';
 import Station from '@/models/dao/Station';
 import Stations from '@/models/Stations';
+import OpeningTimesLoader from '@/models/OpeningTimesLoader';
 
 @Options({
     components: {
@@ -89,9 +89,7 @@ export default class StationOpeningTimes extends Vue {
             throw new Error("Invalid id");
         }
 
-        const openingTimesAPIRequest : OpeningTimesAPIRequest = new OpeningTimesAPIRequest(paramId);
-        const openingTimes : OpeningTimes = await openingTimesAPIRequest.getOpeningTimes();
-        this.openingTimes = openingTimes;
+        this.openingTimes = await OpeningTimesLoader.getOpeningTimes(this.station);
     }
 }
 
