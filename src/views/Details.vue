@@ -3,7 +3,7 @@
     Die Details umfassen:
     - Name der Tankstelle
     - Adresse der Tankstelle
-    - Öffnungszeiten der Tankstelle
+    - Öffnungszeiten der Tankstelle(auf seperater Seite)
     - Preise für die verschiedenen Kraftstoffe
 
     Die Tankstellen werden aus der zentralen Verwaltungsklasse Stations geladen.
@@ -37,12 +37,7 @@
                         <p>
                             {{ station.address.toString() }}
                         </p>
-                        <p v-if="station.isOpen">
-                            Geöffnet
-                        </p>
-                        <p v-else>
-                            Geschlossen
-                        </p>
+                        <ion-button @click="showOpeningHours(station)">Öffnungszeiten</ion-button>
                     </ion-label>
                 </ion-item>
             </ion-list>
@@ -84,6 +79,10 @@ export default class StationDetails extends Vue {
 
     public getStations() : Array<Station> {
         return this.stations;
+    }
+
+    public async showOpeningHours(station : Station) : Promise<void> {
+        this.$router.push({ name: 'StationOpeningTimes', params: { id: station.id } });
     }
 }
 </script>
