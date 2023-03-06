@@ -110,11 +110,11 @@ export default class Map extends Vue {
         }).addTo(this.map);
 
         // Marker für die Tankstellen hinzufügen mit eigenem Icon
-/*      for (let i = 0; i < stations.length; i++) {
+     for (let i = 0; i < stations.length; i++) {
             const station: Station = stations[i];
             L.marker([station.coordinate.latitude, station.coordinate.longitude]).addTo(this.map).bindPopup(station.name  + "<br>" + "Diesel: " + station.dieselPrice + "€" + "<br>" + "Super: " + station.e5Price + "€" + "<br>" + "Super Plus: " + station.e10Price + "€").openPopup(); 
          }
-*/
+
         // Marker für den User hinzufügen mit eigenem Icon
         L.marker([apiRequest.coordinate.latitude, apiRequest.coordinate.longitude], { icon: myLocation }).addTo(this.map).bindPopup("You are here").openPopup();
     }
@@ -140,6 +140,7 @@ export default class Map extends Vue {
             const station: Station = filteredStations[i];
             L.marker([station.coordinate.latitude, station.coordinate.longitude]).addTo(this.map).bindPopup(station.name  + "<br>" + "Diesel: " + station.dieselPrice + "€" + "<br>" + "Super: " + station.e5Price + "€" + "<br>" + "Super Plus: " + station.e10Price + "€").openPopup(); 
         }
+        
 
     }
 }

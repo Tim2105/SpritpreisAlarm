@@ -24,19 +24,22 @@ export default class Filter_ts {
         {
 
             // prüft die Filterkriterien und fügt die Tankstellen in das Array filteredStations ein
-            if (open && station.isOpen) {
+            if (open!= false && station.isOpen != false) {
                 filteredStations.push(station);
-            } else if (diesel && station.dieselPrice != -1) {
+            } else if (diesel != false && station.dieselPrice != -1) {
                 filteredStations.push(station);
-            }  else if (e5 && station.e5Price != -1) {
+            }  else if (e5 != false && station.e5Price != -1) {
                 filteredStations.push(station);
-            } else if (e10 && station.e10Price != -1) {
+            } else if (e10 != false && station.e10Price != -1) {
                 filteredStations.push(station);
             }
             console.log(station + " immer noch drin");
                
         }
-        this.array =  filteredStations;
+
+        console.log( " ist drin");
+
+        this.array =  stations;
     }
 
     public static getFilteredStations() : Station[] {
