@@ -9,10 +9,11 @@
                 <ion-title>Menu Content</ion-title>
             </ion-toolbar>
         </ion-header>
+        <!--Menü beinhalt die Detais und den filter  -->
         <ion-content class="ion-padding">
-            <ion-button @click="showDetails()">Tankstellendetails</ion-button>
             <ion-menu-toggle>
-                <ion-button>Click to close the menu</ion-button>
+                 <FilterVue @update="update()"></FilterVue>
+                 <ion-button @click="showDetails()">Tankstellendetails</ion-button>
             </ion-menu-toggle>
         </ion-content>
     </ion-menu>
@@ -46,11 +47,11 @@ import {
 import { defineComponent } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import APIRequest from '@/models/logic/APIRequest';
-import Station from '@/models/dao/Station';
 
 import Filter_ts from '@/models/logic/Filter';
 import FilterVue from '@/views/Filter.vue';
 import Stations from '@/models/Stations';
+import Station from '@/models/dao/Station';
 
 
 //Einbinden der Leaflet Bibliothek
@@ -59,7 +60,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet/dist/leaflet.js';
 import 'leaflet/dist/images/marker-shadow.png';
 import 'leaflet/dist/images/marker-icon.png';
-import Coordinate from '@/models/dao/Coordinate';
+
 
 @Options({
     components:
@@ -71,21 +72,29 @@ import Coordinate from '@/models/dao/Coordinate';
         IonMenuToggle,
         IonPage,
         IonTitle,
-        IonToolbar
+        IonToolbar,
+        FilterVue
     }
 })
 
 //&Nils Bachmann
 export default class Map extends Vue {
 
+    //die Map als Variable deklarieren
+    private map: any;
+    // den Layer der Tankstellen als Variable deklarieren
+    private layer: any;
+
+   
+    
     public async mounted(): Promise<void> {
 
         const apiRequest: APIRequest = await APIRequest.fromCurrentLocation();
-        const stations = Stations.getStations();
-        console.log(stations);
-        console.log("hi");
+        const stations: Station[] = await apiRequest.getStations();
+
         // Karte initialisieren mit Koordinaten des Users und eigenem Icon
-        const map = L.map('map').setView([apiRequest.coordinate.latitude, apiRequest.coordinate.longitude], 13);
+        this.map = L.map('map').setView([apiRequest.coordinate.latitude , apiRequest.coordinate.longitude], 13);
+
 
         // Icon für den User
         var myLocation = L.icon({
@@ -94,31 +103,44 @@ export default class Map extends Vue {
             popupAnchor: [-3, -76],
         });
 
-        // Kartenlayer hinzufügen wo sich der user befindet
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        // Filter für die Tankstellen eibinden
-        console.log("001");
-        const filter = new FilterVue();
-        filter.filter();
-        const filters = filter.getFilters();
-
-        console.log("001");
-        const tanke = await Filter_ts.filterStations(filters.isOpen, filters.isDiesel, filters.isE5, filters.isE10);
+        // Kartenlayer hinzufügen wo sich der user befindet = layer hinzufügen
+        this.layer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+            maxZoom: 18,
+        }).addTo(this.map);
 
         // Marker für die Tankstellen hinzufügen mit eigenem Icon
-        for (const station of tanke) {
-            L.marker([station.coordinate.latitude, station.coordinate.longitude]).addTo(map).bindPopup(station.name + "<br>" + station.address).openPopup();
-        }
-
+/*      for (let i = 0; i < stations.length; i++) {
+            const station: Station = stations[i];
+            L.marker([station.coordinate.latitude, station.coordinate.longitude]).addTo(this.map).bindPopup(station.name  + "<br>" + "Diesel: " + station.dieselPrice + "€" + "<br>" + "Super: " + station.e5Price + "€" + "<br>" + "Super Plus: " + station.e10Price + "€").openPopup(); 
+         }
+*/
         // Marker für den User hinzufügen mit eigenem Icon
-        L.marker([apiRequest.coordinate.latitude, apiRequest.coordinate.longitude], { icon: myLocation }).addTo(map).bindPopup("You are here").openPopup();
+        L.marker([apiRequest.coordinate.latitude, apiRequest.coordinate.longitude], { icon: myLocation }).addTo(this.map).bindPopup("You are here").openPopup();
     }
 
     public showDetails(): void {
         this.$router.push({ name: 'Details' });
+    }
+
+    /**
+     * update the map with the new filtered stations
+     */
+    public update(): void {
+
+        const filteredStations: Station[] = Filter_ts.getFilteredStations();
+   
+        this.map.removeLayer(this.layer);
+        this.layer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+            maxZoom: 18,
+        }).addTo(this.map);
+
+        for (let i = 0; i < filteredStations.length; i++) {
+            const station: Station = filteredStations[i];
+            L.marker([station.coordinate.latitude, station.coordinate.longitude]).addTo(this.map).bindPopup(station.name  + "<br>" + "Diesel: " + station.dieselPrice + "€" + "<br>" + "Super: " + station.e5Price + "€" + "<br>" + "Super Plus: " + station.e10Price + "€").openPopup(); 
+        }
+
     }
 }
 

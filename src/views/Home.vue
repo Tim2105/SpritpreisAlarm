@@ -1,6 +1,6 @@
 <template>
     <ion-page>
-         <div id="map"></div>
+            <Map></Map>
     </ion-page>
 </template>
 
