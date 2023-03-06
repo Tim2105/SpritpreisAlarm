@@ -97,13 +97,78 @@ export default class Map extends Vue {
         }).addTo(map);
 
         // Marker für die Tankstellen hinzufügen mit eigenem Icon
-        for (let i = 0; i < stations.length; i++) {
-            const station: Station = stations[i];
-            L.marker([station.coordinate.latitude, station.coordinate.longitude]).addTo(map).bindPopup(station.name + "<br>" + station.address).openPopup();
-        }
+        this.zeichneFavoriten(stations, map);
+        this.zeichneAlleTankstellen(stations, map);
 
         // Marker für den User hinzufügen mit eigenem Icon
-        L.marker([apiRequest.coordinate.latitude, apiRequest.coordinate.longitude], {icon: myLocation}).addTo(map).bindPopup("You are here").openPopup();
+        this.zeichneMyLocation(apiRequest, map);
+    }
+    
+    private zeichneAlleTankstellen(stations: Station[], map: L.Map): void {
+        // Icon für die Tankstellen
+        var tankestelle = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/483/483497.png',iconSize: [25, 30], popupAnchor: [0, -13]});
+
+        var aral = L.icon({iconUrl: 'https://seeklogo.com/images/A/Aral-logo-E1036405B9-seeklogo.com.png',iconSize: [38, 45], iconAnchor: [22, 94], popupAnchor: [-3, -76]});
+
+        var shell = L.icon({iconUrl: 'https://upload.wikimedia.org/wikipedia/de/thumb/7/74/Royal_Dutch_Shell.svg/2194px-Royal_Dutch_Shell.svg.png',iconSize: [38, 35], iconAnchor: [22, 94], popupAnchor: [-3, -76]});
+
+        var esso = L.icon({iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Esso-Logo.svg/2560px-Esso-Logo.svg.png',iconSize: [40, 40], iconAnchor: [22, 94], popupAnchor: [-3, -76]});
+
+        var bft = L.icon({iconUrl: 'https://www.bft.de/application/files/4816/6210/6322/bft-logo.svg',iconSize: [38, 95], iconAnchor: [22, 94], popupAnchor: [-3, -50]});
+
+        var star = L.icon({iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Star_Tankstelle_Logo_2020.svg/2560px-Star_Tankstelle_Logo_2020.svg.png',iconSize: [30, 30], iconAnchor: [22, 94], popupAnchor: [-3, -90]});
+
+        var jet = L.icon({iconUrl: 'https://upload.wikimedia.org/wikipedia/de/thumb/e/e5/JET.svg/1280px-JET.svg.png',iconSize: [35, 30], iconAnchor: [22, 94], popupAnchor: [-8, -95]});
+
+
+
+        for (let i = 0; i < stations.length; i++) {
+            const station: Station = stations[i];
+            switch(true){
+            case (/Aral/i.test(station.name)):
+                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: aral }).addTo(map).bindPopup(station.name).openPopup();
+                break;
+            case (/Shell/i.test(station.name)):
+                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: shell}).addTo(map).bindPopup(station.name + "<br>" + station.address).openPopup();
+                break;
+            case (/Esso/i.test(station.name)):
+                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: esso}).addTo(map).bindPopup(station.name).openPopup();
+                break;
+            case (/JET/i.test(station.name)):
+                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: jet}).addTo(map).bindPopup(station.name).openPopup();
+                break;
+            case (/bft/i.test(station.name)):
+                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: bft}).addTo(map).bindPopup(station.name).openPopup();
+                break;
+            case (/star Tankstelle/i.test(station.name)):
+                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: star}).addTo(map).bindPopup(station.name).openPopup();
+                break;
+            default:
+                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: tankestelle}).addTo(map).bindPopup(station.name).openPopup();
+                break;
+            }
+
+        }
+    }
+
+    private zeichneFavoriten(stations: Station[], map: L.Map): void {
+        // Icon für die Favoriten
+        var favorit = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/121/121724.png',iconSize: [25, 30], popupAnchor: [0, -13]});
+
+        for (let i = 0; i < stations.length; i++) {
+            const station: Station = stations[i];
+            L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: favorit}).addTo(map).bindPopup(station.name).openPopup();
+        }
+    }
+
+    private zeichneMyLocation(apiRequest: APIRequest, map: L.Map): void {
+        // Icon für den User
+        var myLocation = L.icon({
+            iconUrl: 'https://www.freeiconspng.com/thumbs/location-icon-png/location-icon-map-png--1.png',iconSize: [50, 60],
+            iconAnchor: [22, 94],
+            popupAnchor: [3, -92],            
+        });
+        L.marker([apiRequest.coordinate.latitude, apiRequest.coordinate.longitude], {icon: myLocation}).addTo(map).bindPopup("Du bist hier").openPopup();
     }
 
     public showDetails(): void {
