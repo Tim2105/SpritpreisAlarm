@@ -22,6 +22,8 @@ export default class Station {
     private _e5Price: number;
     private _e10Price: number;
 
+    private _isFavorite: boolean;
+
     constructor(id: string, name: string, brand: string, address: Address, coordinate: Coordinate,
                 isOpen: boolean, dieselPrice: number | boolean, e5Price: number | boolean, e10Price: number | boolean) {
         this._id = id;
@@ -34,6 +36,8 @@ export default class Station {
         this._dieselPrice = dieselPrice === false ? -1 : dieselPrice as number;
         this._e5Price = e5Price === false ? -1 : e5Price as number;
         this._e10Price = e10Price === false ? -1 : e10Price as number;
+
+        this._isFavorite = false;
     }
 
     get id(): string {
@@ -70,5 +74,13 @@ export default class Station {
 
     get e10Price(): number {
         return this._e10Price;
+    }
+
+    get isFavorite(): boolean {
+        return this._isFavorite;
+    }
+
+    set isFavorite(value: boolean) {
+        this._isFavorite = value;
     }
 }

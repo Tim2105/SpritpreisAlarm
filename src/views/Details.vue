@@ -38,6 +38,11 @@
                             {{ station.address.toString() }}
                         </p>
                         <ion-button @click="showOpeningHours(station)">Öffnungszeiten</ion-button>
+                        <ion-button @click="toggleFavorite(station)">
+                            <ion-icon slot="start" :icon="starIcon"></ion-icon>
+                            <div v-if="!station.isFavorite">Zu Favoriten hinzufügen</div>
+                            <div v-else>Aus Favoriten entfernen</div>
+                        </ion-button>
                     </ion-label>
                 </ion-item>
             </ion-list>
@@ -48,7 +53,8 @@
 <script lang="ts">
 
 //Einbinden der Ionic Bibliothek
-import { IonPage, IonToolbar, IonFooter, IonHeader, IonTitle, IonContent, IonButton, IonActionSheet, IonItem, IonLabel, IonInput, IonList } from '@ionic/vue';
+import { IonPage, IonToolbar, IonFooter, IonHeader, IonTitle, IonContent, IonButton, IonActionSheet, IonItem, IonLabel, IonInput, IonList, IonIcon } from '@ionic/vue';
+import { star } from 'ionicons/icons';
 import { Options, Vue } from 'vue-class-component';
 import Station from '@/models/dao/Station';
 import Stations from '@/models/Stations';
@@ -66,7 +72,8 @@ import Stations from '@/models/Stations';
         IonItem,
         IonLabel,
         IonInput,
-        IonList
+        IonList,
+        IonIcon
     },
 })
 export default class StationDetails extends Vue {
@@ -83,6 +90,17 @@ export default class StationDetails extends Vue {
 
     public async showOpeningHours(station : Station) : Promise<void> {
         this.$router.push({ name: 'StationOpeningTimes', params: { id: station.id } });
+    }
+
+    public toggleFavorite(station : Station) : void {
+        if(station.isFavorite)
+            Stations.removeFavoriteStation(station);
+        else
+            Stations.addFavoriteStation(station);
+    }
+
+    public get starIcon() : string {
+        return star;
     }
 }
 </script>
