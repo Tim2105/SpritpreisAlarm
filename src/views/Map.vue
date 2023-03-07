@@ -44,13 +44,11 @@ import {
 } from '@ionic/vue';
 
 //Einbinden der Vue Bibliothek
-import { defineComponent } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import APIRequest from '@/models/logic/APIRequest';
 
 import Filter_ts from '@/models/logic/Filter';
 import FilterVue from '@/views/Filter.vue';
-import Stations from '@/models/Stations';
 import Station from '@/models/dao/Station';
 
 
@@ -82,16 +80,22 @@ export default class Map extends Vue {
 
     //die Map als Variable deklarieren
     private map: any;
+
     // den Layer der Tankstellen als Variable deklarieren
     private layer: any;
 
+    private layergroup: any;
    
-    
+   /**
+    * initialize the map with the stations
+    */
+
     public async mounted(): Promise<void> {
 
         const apiRequest: APIRequest = await APIRequest.fromCurrentLocation();
         const stations: Station[] = await apiRequest.getStations();
-
+       
+        
         // Karte initialisieren mit Koordinaten des Users und eigenem Icon
         this.map = L.map('map').setView([apiRequest.coordinate.latitude , apiRequest.coordinate.longitude], 13);
 
@@ -103,21 +107,22 @@ export default class Map extends Vue {
             popupAnchor: [-3, -76],
         });
 
-        // Kartenlayer hinzufügen wo sich der user befindet = layer hinzufügen
-        this.layer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
-            maxZoom: 18,
-        }).addTo(this.map);
-
-        // Marker für die Tankstellen hinzufügen mit eigenem Icon
-     for (let i = 0; i < stations.length; i++) {
-            const station: Station = stations[i];
-            L.marker([station.coordinate.latitude, station.coordinate.longitude]).addTo(this.map).bindPopup(station.name  + "<br>" + "Diesel: " + station.dieselPrice + "€" + "<br>" + "Super: " + station.e5Price + "€" + "<br>" + "Super Plus: " + station.e10Price + "€").openPopup(); 
-         }
-
-        // Marker für den User hinzufügen mit eigenem Icon
         L.marker([apiRequest.coordinate.latitude, apiRequest.coordinate.longitude], { icon: myLocation }).addTo(this.map).bindPopup("You are here").openPopup();
-    }
+   
+
+        // Kartenlayer hinzufügen wo sich der user befindet = layer hinzufügen
+        this.layer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map);
+
+        // Marker für die Tankstellen hinzufügen mit eigenem Icon und inder layergroup speichern
+        const filteredStations = [];
+        for (let i = 0; i < stations.length; i++) {
+            const station: Station = stations[i];
+            filteredStations.push(L.marker([station.coordinate.latitude, station.coordinate.longitude]).bindPopup(station.name  + "<br>" + "Diesel: " + station.dieselPrice + "€" + "<br>" + "Super: " + station.e5Price + "€" + "<br>" + "Super Plus: " + station.e10Price + "€").openPopup());
+        }
+
+        this.layergroup = L.layerGroup([...filteredStations]).addTo(this.map);
+        // Marker für den User hinzufügen mit eigenem Icon
+ }
 
     public showDetails(): void {
         this.$router.push({ name: 'Details' });
@@ -128,20 +133,23 @@ export default class Map extends Vue {
      */
     public update(): void {
 
+        //die gefilterten Tankstellen werden in eine Variable gespeichert
         const filteredStations: Station[] = Filter_ts.getFilteredStations();
    
-        this.map.removeLayer(this.layer);
-        this.layer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
-            maxZoom: 18,
-        }).addTo(this.map);
+        //die Layergroup wird gelöscht
+        this.map.removeLayer(this.layergroup);        
 
-        for (let i = 0; i < filteredStations.length; i++) {
+        //der Layer der neuen Tankstellen wird hinzugefügt
+        this.layer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map);
+
+        const filteredStation = [];
+        //die neuen Tankstellen werden auf der Karte angezeigt
+          for (let i = 0; i < filteredStations.length; i++) {
             const station: Station = filteredStations[i];
-            L.marker([station.coordinate.latitude, station.coordinate.longitude]).addTo(this.map).bindPopup(station.name  + "<br>" + "Diesel: " + station.dieselPrice + "€" + "<br>" + "Super: " + station.e5Price + "€" + "<br>" + "Super Plus: " + station.e10Price + "€").openPopup(); 
+            filteredStation.push(L.marker([station.coordinate.latitude, station.coordinate.longitude]).bindPopup(station.name  + "<br>" + "Diesel: " + station.dieselPrice + "€" + "<br>" + "Super: " + station.e5Price + "€" + "<br>" + "Super Plus: " + station.e10Price + "€").openPopup());
         }
-        
-
+        console.log(filteredStation);
+        this.layergroup = L.layerGroup([...filteredStation]).addTo(this.map);
     }
 }
 
