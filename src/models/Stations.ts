@@ -1,6 +1,7 @@
 import APIRequest from '@/models/logic/APIRequest';
 import Station from '@/models/dao/Station';
 
+
 /**
  * Eine Klasse, die alle Tankstellen in der Umgebung bereitstellt.
  * Wenn die Tankstellen bereits einmal geladen wurden, werden sie nicht erneut geladen.
@@ -24,6 +25,41 @@ export default class Stations {
         
         return this._stations;
     }
+
+    public static async getStationsSortedByPrice(fuelType: string) : Promise<Station[]> {
+        const stations : Station[] = await this.getStations();
+        
+        // Sortiere nach dem Preis des gewählten Treibstoffs.
+        stations.sort((a, b) => {
+            let aPrice : number = 0;
+            let bPrice : number = 0;
+
+            switch(fuelType) {
+                case 'diesel':
+                    aPrice = a.dieselPrice;
+                    bPrice = b.dieselPrice;
+                    break;
+                case 'e5':
+                    aPrice = a.e5Price;
+                    bPrice = b.e5Price;
+                    break;
+                case 'e10':
+                    aPrice = a.e10Price;
+                    bPrice = b.e10Price;
+                    break;
+            }
+
+            if(aPrice === -1)
+                return 1;
+            else if(bPrice === -1)
+                return -1;
+            else
+                return aPrice - bPrice;
+        });
+
+        return stations;
+    }
+
 
     public static addFavoriteStation(station : Station) : void {
         if(!station.isFavorite) {

@@ -1,19 +1,19 @@
 <template>
     <!--Einbinden der Css Datei von Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
-     integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
-     crossorigin=""/>
-     <!--Menü Icon -->
-    <ion-menu content-id="main-content">
+        integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI=" crossorigin="" />
+    <!--Menü Icon -->
+    <ion-menu content-id="main-content" side="end">
         <ion-header>
             <ion-toolbar>
                 <ion-title>Menu Content</ion-title>
             </ion-toolbar>
         </ion-header>
+        <!--Menü beinhalt die Detais und den filter  -->
         <ion-content class="ion-padding">
-            <ion-button @click="showDetails()">Tankstellendetails</ion-button>
             <ion-menu-toggle>
-                <ion-button>Click to close the menu</ion-button>
+                 <FilterVue @update="update()"></FilterVue>
+                 <ion-button @click="showDetails()">Tankstellendetails</ion-button>
             </ion-menu-toggle>
         </ion-content>
     </ion-menu>
@@ -44,11 +44,12 @@ import {
 } from '@ionic/vue';
 
 //Einbinden der Vue Bibliothek
-import { defineComponent } from 'vue';
 import { Options, Vue } from 'vue-class-component';
 import APIRequest from '@/models/logic/APIRequest';
-import Station from '@/models/dao/Station';
 
+import Filter_ts from '@/models/logic/Filter';
+import FilterVue from '@/views/Filter.vue';
+import Station from '@/models/dao/Station';
 
 
 //Einbinden der Leaflet Bibliothek
@@ -57,6 +58,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet/dist/leaflet.js';
 import 'leaflet/dist/images/marker-shadow.png';
 import 'leaflet/dist/images/marker-icon.png';
+
 
 @Options({
     components:
@@ -68,29 +70,44 @@ import 'leaflet/dist/images/marker-icon.png';
         IonMenuToggle,
         IonPage,
         IonTitle,
-        IonToolbar
+        IonToolbar,
+        FilterVue
     }
 })
 
+//&Nils Bachmann
 export default class Map extends Vue {
+
+    //die Map als Variable deklarieren
+    private map: any;
+
+    // den Layer der Tankstellen als Variable deklarieren
+    private layer: any;
+
+    private layergroup: any;
+   
+   /**
+    * initialize the map with the stations
+    */
 
     public async mounted(): Promise<void> {
 
         const apiRequest: APIRequest = await APIRequest.fromCurrentLocation();
         const stations: Station[] = await apiRequest.getStations();
-
+        
         // Karte initialisieren mit Koordinaten des Users und eigenem Icon
-        const map = L.map('map').setView([apiRequest.coordinate.latitude, apiRequest.coordinate.longitude], 13);
+        this.map = L.map('map').setView([apiRequest.coordinate.latitude , apiRequest.coordinate.longitude], 13);
 
-        // Kartenlayer hinzufügen wo sich der user befindet
+        // Karte mit OpenStreetMap befüllen
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
-
-        // Marker für die Tankstellen und User Nils Bachmann
-        this.zeichneNurFavoriten(stations, map);
-        //this.zeichneAlleTankstellen(stations, map);
-        this.zeichneMyLocation(apiRequest, map);
+            attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
+            maxZoom: 18,
+        }).addTo(this.map);
+   
+        // // Marker für die Tankstellen und User Nils Bachmann
+        // this.zeichneNurFavoriten(stations, this.map);
+        this.zeichneAlleTankstellen(stations, this.map);
+        // this.zeichneMyLocation(apiRequest, this.map);
     }
     
 
@@ -121,18 +138,18 @@ export default class Map extends Vue {
                 L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: favorit}).addTo(map).bindPopup(popupOptionens).openPopup();
             else if (/Aral/i.test(station.name))
                 L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: aral }).addTo(map).bindPopup(popupOptionens).openPopup();
-                    else if (/Shell/i.test(station.name))
-                        L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: shell}).addTo(map).bindPopup(popupOptionens).openPopup();
-                        else if (/Esso/i.test(station.name))
-                            L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: esso}).addTo(map).bindPopup(popupOptionens).openPopup();
-                            else if (/JET/i.test(station.name))
-                                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: jet}).addTo(map).bindPopup(popupOptionens).openPopup();
-                                else if (/bft/i.test(station.name))
-                                    L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: bft}).addTo(map).bindPopup(popupOptionens).openPopup();
-                                    else if (/star Tankstelle/i.test(station.name))
-                                        L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: star}).addTo(map).bindPopup(popupOptionens).openPopup();
-                                        else
-                                            L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: tankestelle}).addTo(map).bindPopup(popupOptionens).openPopup();
+            else if (/Shell/i.test(station.name))
+                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: shell}).addTo(map).bindPopup(popupOptionens).openPopup();
+            else if (/Esso/i.test(station.name))
+                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: esso}).addTo(map).bindPopup(popupOptionens).openPopup();
+            else if (/JET/i.test(station.name))
+                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: jet}).addTo(map).bindPopup(popupOptionens).openPopup();
+            else if (/bft/i.test(station.name))
+                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: bft}).addTo(map).bindPopup(popupOptionens).openPopup();
+            else if (/star Tankstelle/i.test(station.name))
+                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: star}).addTo(map).bindPopup(popupOptionens).openPopup();
+            else
+                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: tankestelle}).addTo(map).bindPopup(popupOptionens).openPopup();
         }
     }
 
@@ -155,10 +172,34 @@ export default class Map extends Vue {
         var myLocation = L.icon({iconUrl: 'https://www.freeiconspng.com/thumbs/location-icon-png/location-icon-map-png--1.png', iconSize: [60, 60], iconAnchor: [22, 94], popupAnchor: [5, -92]});
 
         L.marker([apiRequest.coordinate.latitude, apiRequest.coordinate.longitude], {icon: myLocation}).addTo(map).bindPopup(popupOptionen).openPopup();
-    }
+ }
 
     public showDetails(): void {
         this.$router.push({ name: 'Details' });
+    }
+
+    /**
+     * update the map with the new filtered stations
+     */
+    public update(): void {
+
+        //die gefilterten Tankstellen werden in eine Variable gespeichert
+        const filteredStations: Station[] = Filter_ts.getFilteredStations();
+   
+        //die Layergroup wird gelöscht
+        this.map.removeLayer(this.layergroup);        
+
+        //der Layer der neuen Tankstellen wird hinzugefügt
+        this.layer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map);
+
+        const filteredStation = [];
+        //die neuen Tankstellen werden auf der Karte angezeigt
+          for (let i = 0; i < filteredStations.length; i++) {
+            const station: Station = filteredStations[i];
+            filteredStation.push(L.marker([station.coordinate.latitude, station.coordinate.longitude]).bindPopup(station.name  + "<br>" + "Diesel: " + station.dieselPrice + "€" + "<br>" + "Super: " + station.e5Price + "€" + "<br>" + "Super Plus: " + station.e10Price + "€").openPopup());
+        }
+        console.log(filteredStation);
+        this.layergroup = L.layerGroup([...filteredStation]).addTo(this.map);
     }
 }
 

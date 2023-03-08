@@ -76,12 +76,13 @@ import Stations from '@/models/Stations';
         IonIcon
     },
 })
+//&Nils Bachmann
 export default class StationDetails extends Vue {
     
     private stations : Array<Station> = [];
 
     public async mounted() : Promise<void> {
-        this.stations = await Stations.getStations();
+        this.stations = await Stations.getStationsSortedByPrice('e10');
     }
 
     public getStations() : Array<Station> {

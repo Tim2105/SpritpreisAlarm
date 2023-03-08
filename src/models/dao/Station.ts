@@ -39,7 +39,6 @@ export default class Station {
 
         this._isFavorite = false;
     }
-
     get id(): string {
         return this._id;
     }
