@@ -88,8 +88,8 @@ export default class Map extends Vue {
         }).addTo(map);
 
         // Marker für die Tankstellen und User Nils Bachmann
-        //this.zeichneNurFavoriten(stations, map);
-        this.zeichneAlleTankstellen(stations, map);
+        this.zeichneNurFavoriten(stations, map);
+        //this.zeichneAlleTankstellen(stations, map);
         this.zeichneMyLocation(apiRequest, map);
     }
     
@@ -112,8 +112,6 @@ export default class Map extends Vue {
         var jet = L.icon({iconUrl: 'https://upload.wikimedia.org/wikipedia/de/thumb/e/e5/JET.svg/1280px-JET.svg.png',iconSize: [35, 30], iconAnchor: [22, 94], popupAnchor: [-8, -95]});
 
         var favorit = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/121/121724.png',iconSize: [25, 30], popupAnchor: [0, -13]});
-
-        var popupOptionen  = L.popup({closeOnClick: false, autoClose: false});
 
         for (let i = 0; i < stations.length; i++) {
             const station: Station = stations[i];
@@ -145,7 +143,8 @@ export default class Map extends Vue {
 
         for (let i = 0; i < stations.length; i++) {
             const station: Station = stations[i];
-            L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: favorit}).addTo(map).bindPopup(station.name).openPopup();
+            if (station.isFavorite == true)
+                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: favorit}).addTo(map).bindPopup(station.name).openPopup();
         }
     }
 
@@ -153,7 +152,7 @@ export default class Map extends Vue {
     private zeichneMyLocation(apiRequest: APIRequest, map: L.Map): void {
         // Icon für den User
         var popupOptionen  = L.popup({closeOnClick: false, autoClose: false}).setContent("Du bist hier");
-        var myLocation = L.icon({iconUrl: 'https://www.freeiconspng.com/thumbs/location-icon-png/location-icon-map-png--1.png', iconSize: [50, 60], iconAnchor: [22, 94], popupAnchor: [3, -92]});
+        var myLocation = L.icon({iconUrl: 'https://www.freeiconspng.com/thumbs/location-icon-png/location-icon-map-png--1.png', iconSize: [60, 60], iconAnchor: [22, 94], popupAnchor: [5, -92]});
 
         L.marker([apiRequest.coordinate.latitude, apiRequest.coordinate.longitude], {icon: myLocation}).addTo(map).bindPopup(popupOptionen).openPopup();
     }

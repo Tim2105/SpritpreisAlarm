@@ -81,7 +81,7 @@ export default class APIRequest {
                 station.isOpen,
                 station.diesel,
                 station.e5,
-                station.e10
+                station.e10,
             ));
         }
 
