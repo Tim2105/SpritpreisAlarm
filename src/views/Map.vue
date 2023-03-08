@@ -78,32 +78,23 @@ export default class Map extends Vue {
 
         const apiRequest: APIRequest = await APIRequest.fromCurrentLocation();
         const stations: Station[] = await apiRequest.getStations();
-        console.log(stations);
-
 
         // Karte initialisieren mit Koordinaten des Users und eigenem Icon
         const map = L.map('map').setView([apiRequest.coordinate.latitude, apiRequest.coordinate.longitude], 13);
-
-        // Icon für den User
-        var myLocation = L.icon({
-            iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/images/marker-icon-2x.png',
-            iconAnchor: [22, 94],
-            popupAnchor: [-3, -76],            
-        });
 
         // Kartenlayer hinzufügen wo sich der user befindet
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
-        // Marker für die Tankstellen hinzufügen mit eigenem Icon
-        this.zeichneFavoriten(stations, map);
+        // Marker für die Tankstellen und User Nils Bachmann
+        //this.zeichneNurFavoriten(stations, map);
         this.zeichneAlleTankstellen(stations, map);
-
-        // Marker für den User hinzufügen mit eigenem Icon
         this.zeichneMyLocation(apiRequest, map);
     }
     
+
+    //Nils Bachmann
     private zeichneAlleTankstellen(stations: Station[], map: L.Map): void {
         // Icon für die Tankstellen
         var tankestelle = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/483/483497.png',iconSize: [25, 30], popupAnchor: [0, -13]});
@@ -120,38 +111,35 @@ export default class Map extends Vue {
 
         var jet = L.icon({iconUrl: 'https://upload.wikimedia.org/wikipedia/de/thumb/e/e5/JET.svg/1280px-JET.svg.png',iconSize: [35, 30], iconAnchor: [22, 94], popupAnchor: [-8, -95]});
 
+        var favorit = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/121/121724.png',iconSize: [25, 30], popupAnchor: [0, -13]});
 
+        var popupOptionen  = L.popup({closeOnClick: false, autoClose: false});
 
         for (let i = 0; i < stations.length; i++) {
             const station: Station = stations[i];
-            switch(true){
-            case (/Aral/i.test(station.name)):
-                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: aral }).addTo(map).bindPopup(station.name).openPopup();
-                break;
-            case (/Shell/i.test(station.name)):
-                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: shell}).addTo(map).bindPopup(station.name + "<br>" + station.address).openPopup();
-                break;
-            case (/Esso/i.test(station.name)):
-                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: esso}).addTo(map).bindPopup(station.name).openPopup();
-                break;
-            case (/JET/i.test(station.name)):
-                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: jet}).addTo(map).bindPopup(station.name).openPopup();
-                break;
-            case (/bft/i.test(station.name)):
-                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: bft}).addTo(map).bindPopup(station.name).openPopup();
-                break;
-            case (/star Tankstelle/i.test(station.name)):
-                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: star}).addTo(map).bindPopup(station.name).openPopup();
-                break;
-            default:
-                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: tankestelle}).addTo(map).bindPopup(station.name).openPopup();
-                break;
-            }
-
+            var infos = station.name + "<br>"+"E5: " + station.e5Price + "€" + "<br>"+ "E10: " + station.dieselPrice+ "€" +"<br>" +"Diesel: "+ station.e10Price+ "€";
+            var popupOptionens  = L.popup({closeOnClick: false, autoClose: false}).setContent(infos);
+            if (station.isFavorite == true)
+                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: favorit}).addTo(map).bindPopup(popupOptionens).openPopup();
+            else if (/Aral/i.test(station.name))
+                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: aral }).addTo(map).bindPopup(popupOptionens).openPopup();
+                    else if (/Shell/i.test(station.name))
+                        L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: shell}).addTo(map).bindPopup(popupOptionens).openPopup();
+                        else if (/Esso/i.test(station.name))
+                            L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: esso}).addTo(map).bindPopup(popupOptionens).openPopup();
+                            else if (/JET/i.test(station.name))
+                                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: jet}).addTo(map).bindPopup(popupOptionens).openPopup();
+                                else if (/bft/i.test(station.name))
+                                    L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: bft}).addTo(map).bindPopup(popupOptionens).openPopup();
+                                    else if (/star Tankstelle/i.test(station.name))
+                                        L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: star}).addTo(map).bindPopup(popupOptionens).openPopup();
+                                        else
+                                            L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: tankestelle}).addTo(map).bindPopup(popupOptionens).openPopup();
         }
     }
 
-    private zeichneFavoriten(stations: Station[], map: L.Map): void {
+    //Nils Bachmann
+    private zeichneNurFavoriten(stations: Station[], map: L.Map): void {
         // Icon für die Favoriten
         var favorit = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/121/121724.png',iconSize: [25, 30], popupAnchor: [0, -13]});
 
@@ -161,14 +149,13 @@ export default class Map extends Vue {
         }
     }
 
+    //Nils Bachmann
     private zeichneMyLocation(apiRequest: APIRequest, map: L.Map): void {
         // Icon für den User
-        var myLocation = L.icon({
-            iconUrl: 'https://www.freeiconspng.com/thumbs/location-icon-png/location-icon-map-png--1.png',iconSize: [50, 60],
-            iconAnchor: [22, 94],
-            popupAnchor: [3, -92],            
-        });
-        L.marker([apiRequest.coordinate.latitude, apiRequest.coordinate.longitude], {icon: myLocation}).addTo(map).bindPopup("Du bist hier").openPopup();
+        var popupOptionen  = L.popup({closeOnClick: false, autoClose: false}).setContent("Du bist hier");
+        var myLocation = L.icon({iconUrl: 'https://www.freeiconspng.com/thumbs/location-icon-png/location-icon-map-png--1.png', iconSize: [50, 60], iconAnchor: [22, 94], popupAnchor: [3, -92]});
+
+        L.marker([apiRequest.coordinate.latitude, apiRequest.coordinate.longitude], {icon: myLocation}).addTo(map).bindPopup(popupOptionen).openPopup();
     }
 
     public showDetails(): void {
