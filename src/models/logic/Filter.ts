@@ -20,15 +20,14 @@ export default class Filter_ts {
 
         for (const station of stations) 
         {
-
             // prüft die Filterkriterien und fügt die Tankstellen in das Array filteredStations ein
-            if (open && !station.isOpen ) {
+            if (!open && station.isOpen ) {
                 continue;
-            } else if (diesel == true && station.dieselPrice == -1) {
+            } else if (diesel && station.dieselPrice == -1) {
                 continue;
-            }  else if (e5 == true && station.e5Price == -1) {
+            }  else if (e5 && station.e5Price == -1) {
                 continue;
-            } else if (e10 == true && station.e10Price == -1) {
+            } else if (e10 && station.e10Price == -1) {
                 continue;
             }   
 
@@ -36,6 +35,33 @@ export default class Filter_ts {
         }
 
         this.array =  filteredStations;
+
+        // sortiert das Array nach dem Preis @author Nils Bachmann
+        this.array.sort((a,b ) => {
+            let aPrice = 0;
+            let bPrice = 0;
+
+            if(!diesel && !e5 && !e10) {
+                aPrice = a.dieselPrice + a.e5Price + a.e10Price;
+                bPrice = b.dieselPrice + b.e5Price + b.e10Price;
+
+            } else{
+                if (diesel) {
+                    aPrice += a.dieselPrice;
+                    bPrice += b.dieselPrice;
+                }
+                if (e5) {
+                    aPrice += a.e5Price;
+                    bPrice += b.e5Price;
+                }
+                if (e10) {
+                    aPrice += a.e10Price;
+                    bPrice += b.e10Price;
+                }
+        }
+            return aPrice - bPrice;
+        });
+        console.log(this.array);
     }
 
     public static getFilteredStations() : Station[] {

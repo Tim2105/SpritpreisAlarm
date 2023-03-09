@@ -83,10 +83,7 @@ export default class Map extends Vue {
     //die Map als Variable deklarieren
     private map: any;
 
-    // den Layer der Tankstellen als Variable deklarieren
-    private layer: any;
-
-    private layergroup: any;
+    private markerListe: L.Marker[] = [];
    
    /**
     * initialize the map with the stations
@@ -123,75 +120,94 @@ export default class Map extends Vue {
             attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
             maxZoom: 18,
         }).addTo(this.map);
-   
+
         // // Marker für die Tankstellen und User Nils Bachmann
         // this.zeichneNurFavoriten(stations, this.map);
+        stations.sort((a, b) => {
+            let aAverage = (a.dieselPrice + a.e5Price + a.e10Price)/3;
+            let bAverage = (b.dieselPrice + b.e5Price + b.e10Price)/3;
+            return aAverage - bAverage;
+        });
+
         this.zeichneAlleTankstellen(stations, this.map);
-        // this.zeichneMyLocation(apiRequest, this.map);
+        this.zeichneMyLocation(coordinate, this.map);
     }
     
 
     //Nils Bachmann
     private zeichneAlleTankstellen(stations: Station[], map: L.Map): void {
+
+        for(let i = 0; i < this.markerListe.length; i++){
+            map.removeLayer(this.markerListe[i]);
+        }
+
+        this.markerListe = [];
+        
         // Icon für die Tankstellen
-        var tankestelle = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/483/483497.png',iconSize: [25, 30], popupAnchor: [0, -13]});
+        const tankestelle = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/483/483497.png',iconSize: [25, 30]});
 
-        var aral = L.icon({iconUrl: 'https://seeklogo.com/images/A/Aral-logo-E1036405B9-seeklogo.com.png',iconSize: [38, 45], iconAnchor: [22, 94], popupAnchor: [-3, -76]});
+        const aral = L.icon({iconUrl: 'https://seeklogo.com/images/A/Aral-logo-E1036405B9-seeklogo.com.png',iconSize: [38, 45]});
 
-        var shell = L.icon({iconUrl: 'https://upload.wikimedia.org/wikipedia/de/thumb/7/74/Royal_Dutch_Shell.svg/2194px-Royal_Dutch_Shell.svg.png',iconSize: [38, 35], iconAnchor: [22, 94], popupAnchor: [-3, -76]});
+        const shell = L.icon({iconUrl: 'https://upload.wikimedia.org/wikipedia/de/thumb/7/74/Royal_Dutch_Shell.svg/2194px-Royal_Dutch_Shell.svg.png',iconSize: [38, 35]});
 
-        var esso = L.icon({iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Esso-Logo.svg/2560px-Esso-Logo.svg.png',iconSize: [40, 40], iconAnchor: [22, 94], popupAnchor: [-3, -76]});
+        const esso = L.icon({iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Esso-Logo.svg/2560px-Esso-Logo.svg.png',iconSize: [40, 30]});
 
-        var bft = L.icon({iconUrl: 'https://www.bft.de/application/files/4816/6210/6322/bft-logo.svg',iconSize: [38, 95], iconAnchor: [22, 94], popupAnchor: [-3, -50]});
+        const bft = L.icon({iconUrl: 'https://www.bft.de/application/files/4816/6210/6322/bft-logo.svg',iconSize: [38, 95]});
 
-        var star = L.icon({iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Star_Tankstelle_Logo_2020.svg/2560px-Star_Tankstelle_Logo_2020.svg.png',iconSize: [30, 30], iconAnchor: [22, 94], popupAnchor: [-3, -90]});
+        const star = L.icon({iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Star_Tankstelle_Logo_2020.svg/2560px-Star_Tankstelle_Logo_2020.svg.png',iconSize: [30, 30]});
 
-        var jet = L.icon({iconUrl: 'https://upload.wikimedia.org/wikipedia/de/thumb/e/e5/JET.svg/1280px-JET.svg.png',iconSize: [35, 30], iconAnchor: [22, 94], popupAnchor: [-8, -95]});
+        const jet = L.icon({iconUrl: 'https://upload.wikimedia.org/wikipedia/de/thumb/e/e5/JET.svg/1280px-JET.svg.png',iconSize: [35, 30]});
 
-        var favorit = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/121/121724.png',iconSize: [25, 30], popupAnchor: [0, -13]});
+        const favorit = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/121/121724.png',iconSize: [25, 30]});
+
 
         for (let i = 0; i < stations.length; i++) {
+
             const station: Station = stations[i];
-            var infos = station.name + "<br>"+"E5: " + station.e5Price + "€" + "<br>"+ "E10: " + station.dieselPrice+ "€" +"<br>" +"Diesel: "+ station.e10Price+ "€";
-            var popupOptionens  = L.popup({closeOnClick: false, autoClose: false}).setContent(infos);
+
+            let infos = station.name + "<br>"+"E5: " + station.e5Price + "€" + "<br>"+ "E10: " + station.dieselPrice+ "€" +"<br>" +"Diesel: "+ station.e10Price+ "€";
+
+            let popupOptionens = L.popup({ closeOnClick: false, autoClose: false }).setContent(infos);
+
             if (station.isFavorite == true)
-                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: favorit}).addTo(map).bindPopup(popupOptionens).openPopup();
+                this.markerListe.push(L.marker([station.coordinate.latitude, station.coordinate.longitude], { icon: favorit }).bindPopup(popupOptionens));
             else if (/Aral/i.test(station.name))
-                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: aral }).addTo(map).bindPopup(popupOptionens).openPopup();
+                this.markerListe.push(L.marker([station.coordinate.latitude, station.coordinate.longitude], { icon: aral }).bindPopup(popupOptionens));
             else if (/Shell/i.test(station.name))
-                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: shell}).addTo(map).bindPopup(popupOptionens).openPopup();
+                this.markerListe.push(L.marker([station.coordinate.latitude, station.coordinate.longitude], { icon: shell }).bindPopup(popupOptionens));
             else if (/Esso/i.test(station.name))
-                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: esso}).addTo(map).bindPopup(popupOptionens).openPopup();
+                this.markerListe.push(L.marker([station.coordinate.latitude, station.coordinate.longitude], { icon: esso }).bindPopup(popupOptionens));
             else if (/JET/i.test(station.name))
-                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: jet}).addTo(map).bindPopup(popupOptionens).openPopup();
+                this.markerListe.push(L.marker([station.coordinate.latitude, station.coordinate.longitude], { icon: jet }).bindPopup(popupOptionens));
             else if (/bft/i.test(station.name))
-                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: bft}).addTo(map).bindPopup(popupOptionens).openPopup();
+                this.markerListe.push(L.marker([station.coordinate.latitude, station.coordinate.longitude], { icon: bft }).bindPopup(popupOptionens));
             else if (/star Tankstelle/i.test(station.name))
-                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: star}).addTo(map).bindPopup(popupOptionens).openPopup();
+                this.markerListe.push(L.marker([station.coordinate.latitude, station.coordinate.longitude], { icon: star }).bindPopup(popupOptionens));
             else
-                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: tankestelle}).addTo(map).bindPopup(popupOptionens).openPopup();
+                this.markerListe.push(L.marker([station.coordinate.latitude, station.coordinate.longitude], { icon: tankestelle }).bindPopup(popupOptionens));
+        } 
+
+        for (let i = 0; i < this.markerListe.length; i++) {
+
+            map.addLayer(this.markerListe[i]);
+
+            if(stations[i].isFavorite == true)
+                this.markerListe[i].openPopup();
+
         }
+
+        if (this.markerListe.length > 0)
+            this.markerListe[0].openPopup();
+
     }
 
     //Nils Bachmann
-    private zeichneNurFavoriten(stations: Station[], map: L.Map): void {
-        // Icon für die Favoriten
-        var favorit = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/121/121724.png',iconSize: [25, 30], popupAnchor: [0, -13]});
-
-        for (let i = 0; i < stations.length; i++) {
-            const station: Station = stations[i];
-            if (station.isFavorite == true)
-                L.marker([station.coordinate.latitude, station.coordinate.longitude], {icon: favorit}).addTo(map).bindPopup(station.name).openPopup();
-        }
-    }
-
-    //Nils Bachmann
-    private zeichneMyLocation(apiRequest: APIRequest, map: L.Map): void {
+    private zeichneMyLocation(coordinate : Coordinate, map: L.Map): void {
         // Icon für den User
-        var popupOptionen  = L.popup({closeOnClick: false, autoClose: false}).setContent("Du bist hier");
-        var myLocation = L.icon({iconUrl: 'https://www.freeiconspng.com/thumbs/location-icon-png/location-icon-map-png--1.png', iconSize: [60, 60], iconAnchor: [22, 94], popupAnchor: [5, -92]});
+        const popupOptionen  = L.popup({closeOnClick: false, autoClose: false}).setContent("Du bist hier");
+        const myLocation = L.icon({iconUrl: 'https://www.freeiconspng.com/thumbs/location-icon-png/location-icon-map-png--1.png', iconSize: [60, 60]});
 
-        L.marker([apiRequest.coordinate.latitude, apiRequest.coordinate.longitude], {icon: myLocation}).addTo(map).bindPopup(popupOptionen).openPopup();
+        L.marker([coordinate.latitude, coordinate.longitude], {icon: myLocation}).addTo(this.map).bindPopup(popupOptionen).openPopup();
  }
 
     public showDetails(): void {
@@ -200,26 +216,14 @@ export default class Map extends Vue {
 
     /**
      * update the map with the new filtered stations
+     * 
+     * @author Nils Bachmann
      */
     public update(): void {
-
-        //die gefilterten Tankstellen werden in eine Variable gespeichert
+     
         const filteredStations: Station[] = Filter_ts.getFilteredStations();
-   
-        //die Layergroup wird gelöscht
-        this.map.removeLayer(this.layergroup);        
-
         //der Layer der neuen Tankstellen wird hinzugefügt
-        this.layer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(this.map);
-
-        const filteredStation = [];
-        //die neuen Tankstellen werden auf der Karte angezeigt
-          for (let i = 0; i < filteredStations.length; i++) {
-            const station: Station = filteredStations[i];
-            filteredStation.push(L.marker([station.coordinate.latitude, station.coordinate.longitude]).bindPopup(station.name  + "<br>" + "Diesel: " + station.dieselPrice + "€" + "<br>" + "Super: " + station.e5Price + "€" + "<br>" + "Super Plus: " + station.e10Price + "€").openPopup());
-        }
-        console.log(filteredStation);
-        this.layergroup = L.layerGroup([...filteredStation]).addTo(this.map);
+        this.zeichneAlleTankstellen(filteredStations, this.map);
     }
 }
 
