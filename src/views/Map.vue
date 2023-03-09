@@ -123,10 +123,10 @@ export default class Map extends Vue {
             attribution: 'Map data © <a href="https://openstreetmap.org">OpenStreetMap</a> contributors',
             maxZoom: 18,
         }).addTo(this.map);
-   
+        this.update();
         // // Marker für die Tankstellen und User Nils Bachmann
         // this.zeichneNurFavoriten(stations, this.map);
-        this.zeichneAlleTankstellen(stations, this.map);
+        //this.zeichneAlleTankstellen(stations, this.map);
         // this.zeichneMyLocation(apiRequest, this.map);
     }
     
