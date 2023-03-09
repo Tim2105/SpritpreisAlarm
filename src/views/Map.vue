@@ -58,7 +58,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet/dist/leaflet.js';
 import 'leaflet/dist/images/marker-shadow.png';
 import 'leaflet/dist/images/marker-icon.png';
-import Stations from '@/models/Stations';
+import StationLoader from '@/models/StationLoader';
 import Coordinate from '@/models/dao/Coordinate';
 
 
@@ -91,7 +91,7 @@ export default class Map extends Vue {
 
     public async mounted(): Promise<void> {
 
-        const stations = await Stations.getStations();
+        const stations = await StationLoader.getStations();
 
         // Koordinaten des Users
         // Standardkoordinaten falls die Standortbestimmung nicht funktioniert

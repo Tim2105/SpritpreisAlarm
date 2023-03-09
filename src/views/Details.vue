@@ -50,7 +50,16 @@
                         <p>
                             {{ station.address.toString() }}
                         </p>
+                        <p v-if="station.isOpen">
+                            <ion-icon :icon="checkmarkCircleOutlineIcon" color="success"></ion-icon>
+                            <span> Geöffnet</span>
+                        </p>
+                        <p v-else>
+                            <ion-icon :icon="closeCircleOutlineIcon" color="danger"></ion-icon>
+                            <span> Geschlossen</span>
+                        </p>
                         <ion-button @click="showOpeningHours(station)">Öffnungszeiten</ion-button>
+                        <br>
                         <ion-button @click="toggleFavorite(station)">
                             <ion-icon slot="start" :icon="starIcon"></ion-icon>
                             <div v-if="!station.isFavorite">Zu Favoriten hinzufügen</div>
@@ -67,10 +76,10 @@
 
 //Einbinden der Ionic Bibliothek
 import { IonPage, IonToolbar, IonFooter, IonHeader, IonTitle, IonContent, IonButton, IonActionSheet, IonItem, IonLabel, IonInput, IonList, IonIcon, IonSelect, IonSelectOption } from '@ionic/vue';
-import { star } from 'ionicons/icons';
+import { star, checkmarkCircleOutline, closeCircleOutline } from 'ionicons/icons';
 import { Options, Vue } from 'vue-class-component';
 import Station from '@/models/dao/Station';
-import Stations from '@/models/Stations';
+import StationLoader from '@/models/StationLoader';
 
 @Options({
     components: {
@@ -99,7 +108,7 @@ export default class StationDetails extends Vue {
     private sortPred : string = '';
 
     public async mounted() : Promise<void> {
-        this.stations = await Stations.getStationsSortedByPrice('e10');
+        this.stations = await StationLoader.getStationsSortedByPrice('e10');
     }
 
     public async sort() : Promise<void> {
@@ -107,13 +116,13 @@ export default class StationDetails extends Vue {
             return;
         
         if(this.sortPred === 'distance')
-            this.stations = await Stations.getStationsSortedByDistance();
+            this.stations = await StationLoader.getStationsSortedByDistance();
         else if(this.sortPred === 'dieselPrice')
-            this.stations = await Stations.getStationsSortedByPrice('diesel');
+            this.stations = await StationLoader.getStationsSortedByPrice('diesel');
         else if(this.sortPred === 'e5Price')
-            this.stations = await Stations.getStationsSortedByPrice('e5');
+            this.stations = await StationLoader.getStationsSortedByPrice('e5');
         else if(this.sortPred === 'e10Price')
-            this.stations = await Stations.getStationsSortedByPrice('e10');
+            this.stations = await StationLoader.getStationsSortedByPrice('e10');
         
         // Unschöner Trick, um die Liste neu zu rendern
         // Entfernen und Hinzufügen der letzten Tankstelle, um ein Rerendering zu erzwingen
@@ -128,13 +137,21 @@ export default class StationDetails extends Vue {
 
     public toggleFavorite(station : Station) : void {
         if(station.isFavorite)
-            Stations.removeFavoriteStation(station);
+            StationLoader.removeFavoriteStation(station);
         else
-            Stations.addFavoriteStation(station);
+            StationLoader.addFavoriteStation(station);
     }
 
     public get starIcon() : string {
         return star;
+    }
+
+    public get checkmarkCircleOutlineIcon() : string {
+        return checkmarkCircleOutline;
+    }
+
+    public get closeCircleOutlineIcon() : string {
+        return closeCircleOutline;
     }
 
     get sortPredicate() : string {

@@ -32,10 +32,12 @@
             </ion-item>
 
             <p v-if="station?.isOpen">
-                <ion-label color="success">Geöffnet</ion-label>
+                <ion-icon :icon="checkmarkCircleOutlineIcon" color="success"></ion-icon>
+                <span> Geöffnet</span>
             </p>
             <p v-else>
-                <ion-label color="danger">Geschlossen</ion-label>
+                <ion-icon :icon="closeCircleOutlineIcon" color="danger"></ion-icon>
+                <span> Geschlossen</span>
             </p>
 
         </ion-content>
@@ -45,11 +47,12 @@
 <script lang="ts">
 
 //Einbinden der Ionic Bibliothek
-import { IonPage, IonToolbar, IonFooter, IonHeader, IonTitle, IonContent, IonButton, IonActionSheet, IonItem, IonLabel, IonInput, IonList } from '@ionic/vue';
+import { IonPage, IonToolbar, IonFooter, IonHeader, IonTitle, IonContent, IonButton, IonActionSheet, IonItem, IonLabel, IonInput, IonList, IonIcon } from '@ionic/vue';
 import { Options, Vue } from 'vue-class-component';
+import { checkmarkCircleOutline, closeCircleOutline } from 'ionicons/icons';
 import OpeningTimes from '@/models/dao/OpeningTimes';
 import Station from '@/models/dao/Station';
-import Stations from '@/models/Stations';
+import StationLoader from '@/models/StationLoader';
 import OpeningTimesLoader from '@/models/OpeningTimesLoader';
 
 @Options({
@@ -65,7 +68,8 @@ import OpeningTimesLoader from '@/models/OpeningTimesLoader';
         IonItem,
         IonLabel,
         IonInput,
-        IonList
+        IonList,
+        IonIcon
     },
 })
 export default class StationOpeningTimes extends Vue {
@@ -77,7 +81,7 @@ export default class StationOpeningTimes extends Vue {
         const paramId = this.$route.params.id;
 
         if (paramId != null && typeof paramId === 'string') {
-            const stations : Station[] = await Stations.getStations();
+            const stations : Station[] = await StationLoader.getStations();
             const station : Station | undefined = stations.find((station : Station) => station.id === paramId);
 
             if (station != null) {
@@ -90,6 +94,14 @@ export default class StationOpeningTimes extends Vue {
         }
 
         this.openingTimes = await OpeningTimesLoader.getOpeningTimes(this.station);
+    }
+
+    public get checkmarkCircleOutlineIcon() : string {
+        return checkmarkCircleOutline;
+    }
+
+    public get closeCircleOutlineIcon() : string {
+        return closeCircleOutline;
     }
 }
 

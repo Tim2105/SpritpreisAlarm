@@ -6,7 +6,7 @@
  */
 
 import Station from '@/models/dao/Station';
-import Stations from '@/models/Stations';
+import StationLoader from '@/models/StationLoader';
 
 export default class Filter_ts {
 
@@ -16,7 +16,7 @@ export default class Filter_ts {
     {
 
         const filteredStations: Station[] = [];
-        const stations: Station[] = await Stations.getStations();
+        const stations: Station[] = await StationLoader.getStations();
 
         for (const station of stations) 
         {

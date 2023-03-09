@@ -10,7 +10,7 @@ import Coordinate from '@/models/dao/Coordinate';
  * 
  * @author Tim
  */
-export default class Stations {
+export default class StationLoader {
 
     private static _stations : Station[] = [];
     private static madeRequest : boolean = false;
