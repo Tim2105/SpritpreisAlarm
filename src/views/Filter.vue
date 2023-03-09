@@ -42,14 +42,10 @@ export default class FilterVue extends Vue {
   private _isE5: boolean = true;
 
 
-  public filter(): void {
+  public async filter(): Promise<void> {
 
     //Prüfen ob die Checkboxen angeklickt sind und die Variable entsprechend setzen
-    console.log(this._filter);
-
-    console.log("01 "+ this._isOpen + this._isDiesel + this._isE10 + this._isE5);
-    Filter_ts.filterStations(this._isDiesel, this._isE5, this._isE10 ,true);
-    console.log("02");
+    await Filter_ts.filterStations(this._isDiesel, this._isE5, this._isE10 ,this._isOpen);
     this.$emit ('update');
   }
 

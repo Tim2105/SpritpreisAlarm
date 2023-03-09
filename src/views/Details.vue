@@ -37,13 +37,13 @@
                     <ion-label>
                         <h1>{{ station.name }}</h1>
                         <p>
-                        <span v-if="station.dieselPrice" class="price">
+                        <span v-if="station.dieselPrice != -1" class="price">
                             Diesel: {{ station.dieselPrice }}€
                         </span>
-                        <span v-if="station.e5Price" class="price">
+                        <span v-if="station.e5Price != -1" class="price">
                             E5: {{ station.e5Price }}€
                         </span>
-                        <span v-if="station.e10Price" class="price">
+                        <span v-if="station.e10Price != -1" class="price">
                             E10: {{ station.e10Price }}€
                         </span>
                         </p>
