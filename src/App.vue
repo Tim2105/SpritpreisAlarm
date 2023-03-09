@@ -7,7 +7,6 @@
 <script lang="ts">
 import { IonApp, IonRouterOutlet } from '@ionic/vue';
 import { Options, Vue } from 'vue-class-component';
-import Stations from '@/models/Stations';
 
 @Options({
     components: {
@@ -19,8 +18,6 @@ export default class App extends Vue {
 
     public async mounted(): Promise<void> {
         await this.$router.isReady();
-
-        Stations.loadFavoriteStations();
     }
 
 }

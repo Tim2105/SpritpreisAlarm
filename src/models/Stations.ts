@@ -1,5 +1,6 @@
 import APIRequest from '@/models/logic/APIRequest';
 import Station from '@/models/dao/Station';
+import Coordinate from '@/models/dao/Coordinate';
 
 
 /**
@@ -18,9 +19,17 @@ export default class Stations {
 
     public static async getStations() : Promise<Station[]> {
         if(!this.madeRequest) {
-            this.madeRequest = true;
-            const apiRequest : APIRequest = await APIRequest.fromCurrentLocation();
+            // Fachhochschule Südwestfalen - Standort Iserlohn
+            let apiRequest : APIRequest = new APIRequest(new Coordinate(51.36882628398427, 7.687692660214414));
+
+            await APIRequest.fromCurrentLocation()
+                .then((request) => apiRequest = request)
+                .catch(() => {console.log('Standort konnte nicht ermittelt werden')});
+                
             this._stations = await apiRequest.getStations();
+            this.madeRequest = true;
+
+            await this.loadFavoriteStations();
         }
         
         return this._stations;
@@ -29,7 +38,7 @@ export default class Stations {
     public static async getStationsSortedByPrice(fuelType: string) : Promise<Station[]> {
         const stations : Station[] = await this.getStations();
         
-        // Sortiere nach dem Preis des gewählten Treibstoffs.
+        // Sortiere nach dem Preis des gewählten Treibstoffs
         stations.sort((a, b) => {
             let aPrice : number = 0;
             let bPrice : number = 0;
@@ -55,6 +64,17 @@ export default class Stations {
                 return -1;
             else
                 return aPrice - bPrice;
+        });
+
+        return stations;
+    }
+
+    public static async getStationsSortedByDistance() : Promise<Station[]> {
+        const stations : Station[] = await this.getStations();
+
+        // Sortiere nach der Entfernung
+        stations.sort((a, b) => {
+            return a.coordinate.distance - b.coordinate.distance;
         });
 
         return stations;

@@ -58,6 +58,8 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet/dist/leaflet.js';
 import 'leaflet/dist/images/marker-shadow.png';
 import 'leaflet/dist/images/marker-icon.png';
+import Stations from '@/models/Stations';
+import Coordinate from '@/models/dao/Coordinate';
 
 
 @Options({
@@ -92,11 +94,29 @@ export default class Map extends Vue {
 
     public async mounted(): Promise<void> {
 
-        const apiRequest: APIRequest = await APIRequest.fromCurrentLocation();
-        const stations: Station[] = await apiRequest.getStations();
+        const stations = await Stations.getStations();
+
+        // Koordinaten des Users
+        // Standardkoordinaten falls die Standortbestimmung nicht funktioniert
+        let coordinate = new Coordinate(51.36882628398427, 7.687692660214414); // Fachhochschule Südwestfalen - Standort Iserlohn
+
+        // Standortbestimmung
+        if(navigator.geolocation) {
+            // Warten auf die Standortbestimmung
+            await new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition((position) => {
+                    coordinate = new Coordinate(position.coords.latitude, position.coords.longitude);
+                    resolve(position);
+                }, (error) => {
+                    reject(error);
+                });
+            }).catch((error) => {
+                console.log(error);
+            });
+        }
         
         // Karte initialisieren mit Koordinaten des Users und eigenem Icon
-        this.map = L.map('map').setView([apiRequest.coordinate.latitude , apiRequest.coordinate.longitude], 13);
+        this.map = L.map('map').setView([coordinate.latitude , coordinate.longitude], 13);
 
         // Karte mit OpenStreetMap befüllen
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

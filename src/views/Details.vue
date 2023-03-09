@@ -20,7 +20,20 @@
 
         <ion-content>
             <ion-list>
-                <ion-item v-for="station in getStations()" :key="station.id">
+                <ion-item>
+                    <ion-label>
+                        <h1>Sortiere nach</h1>
+                        <p>
+                            <ion-select v-model="sortPredicate" placeholder="Sortierkriterium" interface="popover" @ionChange="sort()">
+                                <ion-select-option value="distance">Entfernung</ion-select-option>
+                                <ion-select-option value="dieselPrice">Dieselpreis</ion-select-option>
+                                <ion-select-option value="e5Price">E5 Preis</ion-select-option>
+                                <ion-select-option value="e10Price">E10 Preis</ion-select-option>
+                            </ion-select>
+                        </p>
+                    </ion-label>
+                </ion-item>
+                <ion-item v-for="station in stations" :key="station.id">
                     <ion-label>
                         <h1>{{ station.name }}</h1>
                         <p>
@@ -53,7 +66,7 @@
 <script lang="ts">
 
 //Einbinden der Ionic Bibliothek
-import { IonPage, IonToolbar, IonFooter, IonHeader, IonTitle, IonContent, IonButton, IonActionSheet, IonItem, IonLabel, IonInput, IonList, IonIcon } from '@ionic/vue';
+import { IonPage, IonToolbar, IonFooter, IonHeader, IonTitle, IonContent, IonButton, IonActionSheet, IonItem, IonLabel, IonInput, IonList, IonIcon, IonSelect, IonSelectOption } from '@ionic/vue';
 import { star } from 'ionicons/icons';
 import { Options, Vue } from 'vue-class-component';
 import Station from '@/models/dao/Station';
@@ -73,20 +86,40 @@ import Stations from '@/models/Stations';
         IonLabel,
         IonInput,
         IonList,
-        IonIcon
+        IonIcon,
+        IonSelect,
+        IonSelectOption
     },
 })
-//&Nils Bachmann
+
 export default class StationDetails extends Vue {
     
-    private stations : Array<Station> = [];
+    public stations : Array<Station> = [];
+
+    private sortPred : string = '';
 
     public async mounted() : Promise<void> {
         this.stations = await Stations.getStationsSortedByPrice('e10');
     }
 
-    public getStations() : Array<Station> {
-        return this.stations;
+    public async sort() : Promise<void> {
+        if(this.sortPred === '')
+            return;
+        
+        if(this.sortPred === 'distance')
+            this.stations = await Stations.getStationsSortedByDistance();
+        else if(this.sortPred === 'dieselPrice')
+            this.stations = await Stations.getStationsSortedByPrice('diesel');
+        else if(this.sortPred === 'e5Price')
+            this.stations = await Stations.getStationsSortedByPrice('e5');
+        else if(this.sortPred === 'e10Price')
+            this.stations = await Stations.getStationsSortedByPrice('e10');
+        
+        // Unschöner Trick, um die Liste neu zu rendern
+        // Entfernen und Hinzufügen der letzten Tankstelle, um ein Rerendering zu erzwingen
+        const station = this.stations.pop();
+        if(station)
+            this.stations.push(station);
     }
 
     public async showOpeningHours(station : Station) : Promise<void> {
@@ -102,6 +135,14 @@ export default class StationDetails extends Vue {
 
     public get starIcon() : string {
         return star;
+    }
+
+    get sortPredicate() : string {
+        return this.sortPred;
+    }
+
+    set sortPredicate(value : string) {
+        this.sortPred = value;
     }
 }
 </script>

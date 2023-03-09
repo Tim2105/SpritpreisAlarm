@@ -7,10 +7,7 @@
 <script lang="ts">
 import { IonPage, IonToolbar, IonFooter, IonHeader, IonTitle, IonContent, IonButton, IonActionSheet, IonItem, IonLabel, IonInput } from '@ionic/vue';
 import { Options, Vue } from 'vue-class-component';
-import APIRequest from '@/models/logic/APIRequest';
-import Station from '@/models/dao/Station';
 import Map from '@/views/Map.vue';
-import Stations from '@/models/Stations';
 
 @Options({
     components: {
@@ -31,20 +28,6 @@ import Stations from '@/models/Stations';
 
 export default class Home extends Vue {
 
-    private _output : string = '';
-
-    public async mounted() : Promise<void> {
-        const apiRequest : APIRequest = await APIRequest.fromCurrentLocation();
-        const stations = await Stations.getStations();
-        console.log(stations);
-        console.log("hi");
-
-        this._output = JSON.stringify(stations);
-    }
-
-    public get output() : string {
-        return this._output;
-    }
 }
 </script>
 
