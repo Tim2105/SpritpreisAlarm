@@ -45,8 +45,8 @@ import {
 
 //Einbinden der Vue Bibliothek
 import { Options, Vue } from 'vue-class-component';
-import APIRequest from '@/models/logic/APIRequest';
 
+//Einbinden der eigenen Klassen
 import Filter_ts from '@/models/logic/Filter';
 import FilterVue from '@/views/Filter.vue';
 import Station from '@/models/dao/Station';
@@ -77,7 +77,7 @@ import Coordinate from '@/models/dao/Coordinate';
     }
 })
 
-//&Nils Bachmann
+//Nils Bachmann
 export default class Map extends Vue {
 
     //die Map als Variable deklarieren
@@ -86,7 +86,7 @@ export default class Map extends Vue {
     private markerListe: L.Marker[] = [];
    
    /**
-    * initialize the map with the stations
+    * Initialisiert die Karte und fügt die Tankstellen und den User hinzu
     */
 
     public async mounted(): Promise<void> {
@@ -121,21 +121,21 @@ export default class Map extends Vue {
             maxZoom: 18,
         }).addTo(this.map);
 
-        // // Marker für die Tankstellen und User Nils Bachmann
-        // this.zeichneNurFavoriten(stations, this.map);
+        //Marker für die Tankstellen und User
+        //Sortiert das erste mal die Tankstellen nach der durchschnittlichen Preis
         stations.sort((a, b) => {
             let aAverage = (a.dieselPrice + a.e5Price + a.e10Price)/3;
             let bAverage = (b.dieselPrice + b.e5Price + b.e10Price)/3;
             return aAverage - bAverage;
         });
 
-        this.zeichneAlleTankstellen(stations, this.map);
-        this.zeichneMyLocation(coordinate, this.map);
+        this.printAllMarkings(stations, this.map);
+        this.printMyLocation(coordinate, this.map);
     }
     
 
     //Nils Bachmann
-    private zeichneAlleTankstellen(stations: Station[], map: L.Map): void {
+    private printAllMarkings(stations: Station[], map: L.Map): void {
 
         for(let i = 0; i < this.markerListe.length; i++){
             map.removeLayer(this.markerListe[i]);
@@ -143,7 +143,7 @@ export default class Map extends Vue {
 
         this.markerListe = [];
         
-        // Icon für die Tankstellen
+        // Icons für die Tankstellen
         const tankestelle = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/483/483497.png',iconSize: [25, 30]});
 
         const aral = L.icon({iconUrl: 'https://seeklogo.com/images/A/Aral-logo-E1036405B9-seeklogo.com.png',iconSize: [38, 45]});
@@ -160,33 +160,35 @@ export default class Map extends Vue {
 
         const favorit = L.icon({ iconUrl: 'https://cdn-icons-png.flaticon.com/512/121/121724.png',iconSize: [25, 30]});
 
-
+        //Marker für Tankstellen zusammen bauen
         for (let i = 0; i < stations.length; i++) {
 
             const station: Station = stations[i];
-
+            //String für jede einzelne Tankstelle
             let infos = station.name + "<br>"+"E5: " + station.e5Price + "€" + "<br>"+ "E10: " + station.dieselPrice+ "€" +"<br>" +"Diesel: "+ station.e10Price+ "€";
-
+            //Popup Eigenschaften
             let popupOptionens = L.popup({ closeOnClick: false, autoClose: false }).setContent(infos);
-
+            //Überprüfen ob Tankstelle Favorit ist und dann entsprechendes Icon setzen ansonsten welchen Brandname die Tankstelle hat und dann entsprechendes Icon setzen
+            //Im Falle das die Tankstelle keinem Brandname entspricht wird das standard Icon für Tankstellen gesetzt
             if (station.isFavorite == true)
                 this.markerListe.push(L.marker([station.coordinate.latitude, station.coordinate.longitude], { icon: favorit }).bindPopup(popupOptionens));
-            else if (/Aral/i.test(station.name))
+            else if (station.brand == "ARAL")
                 this.markerListe.push(L.marker([station.coordinate.latitude, station.coordinate.longitude], { icon: aral }).bindPopup(popupOptionens));
-            else if (/Shell/i.test(station.name))
+            else if (station.brand == "SHELL")
                 this.markerListe.push(L.marker([station.coordinate.latitude, station.coordinate.longitude], { icon: shell }).bindPopup(popupOptionens));
-            else if (/Esso/i.test(station.name))
+            else if (station.brand == "ESSO")
                 this.markerListe.push(L.marker([station.coordinate.latitude, station.coordinate.longitude], { icon: esso }).bindPopup(popupOptionens));
-            else if (/JET/i.test(station.name))
+            else if (station.brand == "JET")
                 this.markerListe.push(L.marker([station.coordinate.latitude, station.coordinate.longitude], { icon: jet }).bindPopup(popupOptionens));
-            else if (/bft/i.test(station.name))
+            else if (/bft/i.test(station.name)) //BFT Tankstellen haben keinen Brandnamen der in der Liste steht
                 this.markerListe.push(L.marker([station.coordinate.latitude, station.coordinate.longitude], { icon: bft }).bindPopup(popupOptionens));
-            else if (/star Tankstelle/i.test(station.name))
+            else if (station.brand == "STAR")
                 this.markerListe.push(L.marker([station.coordinate.latitude, station.coordinate.longitude], { icon: star }).bindPopup(popupOptionens));
             else
                 this.markerListe.push(L.marker([station.coordinate.latitude, station.coordinate.longitude], { icon: tankestelle }).bindPopup(popupOptionens));
         } 
 
+        //Alle Marker auf die Karte zeichnen
         for (let i = 0; i < this.markerListe.length; i++) {
 
             map.addLayer(this.markerListe[i]);
@@ -196,15 +198,18 @@ export default class Map extends Vue {
 
         }
 
+        //Da die Tankstellen sortiert nach Durchschnitt/gefiltert&sortiert sind ist der erste Eintrag immer die günstigste Tankstelle
         if (this.markerListe.length > 0)
             this.markerListe[0].openPopup();
 
     }
 
+    //Zeichnet die eigene Position auf der Karte
     //Nils Bachmann
-    private zeichneMyLocation(coordinate : Coordinate, map: L.Map): void {
-        // Icon für den User
+    private printMyLocation(coordinate : Coordinate, map: L.Map): void {
+        // Popup Eigenschaften
         const popupOptionen  = L.popup({closeOnClick: false, autoClose: false}).setContent("Du bist hier");
+        //Icon Eigenschaften
         const myLocation = L.icon({iconUrl: 'https://www.freeiconspng.com/thumbs/location-icon-png/location-icon-map-png--1.png', iconSize: [60, 60]});
 
         L.marker([coordinate.latitude, coordinate.longitude], {icon: myLocation}).addTo(this.map).bindPopup(popupOptionen).openPopup();
@@ -215,15 +220,15 @@ export default class Map extends Vue {
     }
 
     /**
-     * update the map with the new filtered stations
+     * Updatet die Tankstellen auf der Karte
      * 
      * @author Nils Bachmann
      */
     public update(): void {
-     
+        //Wenn ein Filter ausgewählt wurde werden die Tankstellen gefiltert und sortiert
         const filteredStations: Station[] = Filter_ts.getFilteredStations();
-        //der Layer der neuen Tankstellen wird hinzugefügt
-        this.zeichneAlleTankstellen(filteredStations, this.map);
+        //Die Marker werden neu gezeichnet
+        this.printAllMarkings(filteredStations, this.map);
     }
 }
 
