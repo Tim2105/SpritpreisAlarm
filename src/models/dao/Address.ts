@@ -7,11 +7,11 @@
 export default class Address {
 
     private _street: string;
-    private _houseNumber: number;
+    private _houseNumber: string;
     private _city: string;
     private _postalCode: string;
 
-    constructor(street: string, houseNumber: number, city: string, postalCode: string) {
+    constructor(street: string, houseNumber: string, city: string, postalCode: string) {
         this._street = street;
         this._houseNumber = houseNumber;
         this._city = city;
@@ -22,7 +22,7 @@ export default class Address {
         return this._street;
     }
 
-    get houseNumber(): number {
+    get houseNumber(): string {
         return this._houseNumber;
     }
 
